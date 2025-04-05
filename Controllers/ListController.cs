@@ -8,75 +8,45 @@ namespace api.Controllers;
 [ApiController]
 public class ListController : ControllerBase
 {
-    private readonly IListRepository _listRepository;
-    public ListController(IListRepository taskRepository)
+    private readonly IListService _listService;
+
+    public ListController(IListService listService)
     {
-        _listRepository = taskRepository;
+        _listService = listService;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var lists = await _listRepository.GetAllAsync();
-        var listsDto = lists.Select(l => ListDto.FromModel(l));
-
-        return Ok(lists);
+        var result = await _listService.GetAll();
+        return Ok(result);
     }
 
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var list = await _listRepository.GetByIdAsync(id);
-
-        if (list is null)
-        {
-            return NotFound("List not found");
-        }
-
-        return Ok(ListDto.FromModel(list));
+        var result = await _listService.GetById(id);
+        return Ok(result);
     }
 
     [HttpPost]
     public async Task<IActionResult> Create(CreateListDto request)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
-        var list = await _listRepository.CreateAsync(request);
-
-        return CreatedAtAction(nameof(GetById), new { id = list.Id }, ListDto.FromModel(list));
+        var result = await _listService.Create(request);
+        return StatusCode(StatusCodes.Status201Created, result);
     }
 
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, UpdateListDto request)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
-        var list = await _listRepository.UpdateAsync(id, request);
-
-        if (list is null)
-        {
-            return NotFound("List not found");
-        }
-
-        return Ok(ListDto.FromModel(list));
+        var result = await _listService.Update(id, request);
+        return Ok(result);
     }
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var list = await _listRepository.DeleteAsync(id);
-
-        if (list is null)
-        {
-            return NotFound("List not found");
-        }
-
+        await _listService.Delete(id);
         return NoContent();
     }
 }
