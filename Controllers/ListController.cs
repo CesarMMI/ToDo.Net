@@ -39,6 +39,11 @@ public class ListController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(CreateListDto request)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         var list = await _listRepository.CreateAsync(request);
 
         return CreatedAtAction(nameof(GetById), new { id = list.Id }, ListDto.FromModel(list));
@@ -47,6 +52,11 @@ public class ListController : ControllerBase
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, UpdateListDto request)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         var list = await _listRepository.UpdateAsync(id, request);
 
         if (list is null)

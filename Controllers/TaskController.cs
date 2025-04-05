@@ -41,6 +41,11 @@ public class TaskController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(CreateTaskDto request)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         if (request.ListId is not null)
         {
             if (!(await _listRepository.ExistsAsync((int)request.ListId)))
@@ -57,6 +62,11 @@ public class TaskController : ControllerBase
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, UpdateTaskDto request)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         if (request.ListId is not null)
         {
             if (!(await _listRepository.ExistsAsync((int)request.ListId)))
