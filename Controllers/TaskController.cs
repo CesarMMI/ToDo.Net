@@ -1,5 +1,6 @@
 ﻿using api.Dtos.Task;
 using api.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers;
@@ -16,6 +17,7 @@ public class TaskController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> GetAll()
     {
         var result = await _taskService.GetAll();
