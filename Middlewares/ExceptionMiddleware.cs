@@ -19,7 +19,7 @@ public class ExceptionMiddleware(RequestDelegate next)
         }
         catch (SecurityTokenException)
         {
-            await ReturnErrorAsync(context, 401, "Invalid token");
+            await ReturnErrorAsync(context, 401, "Invalid Token");
         }
         catch (UnauthorizedAccessException)
         {
@@ -27,7 +27,7 @@ public class ExceptionMiddleware(RequestDelegate next)
         }
         catch (Exception)
         {
-            await ReturnErrorAsync(context, 500, "Internal server error");
+            await ReturnErrorAsync(context, 500, "Internal Server Error");
         }
     }
 

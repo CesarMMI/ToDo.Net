@@ -1,8 +1,6 @@
 ﻿using api.Exceptions;
 using api.Interfaces;
 using api.Models;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -14,30 +12,32 @@ public class TokenService : ITokenService
 {
     private readonly JwtSecurityTokenHandler tokenHandler;
 
-    private readonly string? issuer;
-    private readonly string? accessSecret;
-    private readonly string? refreshSecret;
+    private readonly string issuer;
+    private readonly string accessSecret;
+    private readonly string refreshSecret;
+    private readonly double accessExpiresMins;
+    private readonly double refreshExpiresMins;
 
     public TokenService(IConfiguration configuration)
     {
         tokenHandler = new JwtSecurityTokenHandler();
         JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
-        issuer = configuration.GetValue<string>("JWT:Issuer");
-        accessSecret = configuration.GetValue<string>("JWT:AccessSecret");
-        refreshSecret = configuration.GetValue<string>("JWT:RefreshSecret");
-
-
+        issuer = configuration.GetValue<string>("JWT:Issuer")!;
+        accessSecret = configuration.GetValue<string>("JWT:AccessSecret")!;
+        refreshSecret = configuration.GetValue<string>("JWT:RefreshSecret")!;
+        accessExpiresMins = configuration.GetValue<double>("JWT:AccessExpiresMins")!;
+        refreshExpiresMins = configuration.GetValue<double>("JWT:RefreshExpiresMins")!;
     }
 
     public string CreateAccessToken(User user)
     {
-        return CreateToken(user, accessSecret!, DateTime.UtcNow.AddMinutes(1));
+        return CreateToken(user, accessSecret!, DateTime.UtcNow.AddMinutes(accessExpiresMins));
     }
 
     public string CreateRefreshToken(User user)
     {
-        return CreateToken(user, refreshSecret!, DateTime.UtcNow.AddMinutes(5));
+        return CreateToken(user, refreshSecret!, DateTime.UtcNow.AddMinutes(refreshExpiresMins));
     }
 
     public ClaimsPrincipal ValidateRefreshToken(string token)
@@ -48,7 +48,7 @@ public class TokenService : ITokenService
         {
             return tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
         }
-        catch (SecurityTokenException ex)
+        catch (SecurityTokenException)
         {
             throw new UnauthorizedException("Invalid token");
         }
@@ -76,13 +76,6 @@ public class TokenService : ITokenService
 
 public static class TokenServiceExtensions
 {
-    public static AuthenticationBuilder UseJwtAuthentication(this WebApplicationBuilder builder)
-    {
-        return builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
-            options.TokenValidationParameters = GetTokenValidationParameters(builder.Configuration["JWT:Issuer"], builder.Configuration["JWT:AccessSecret"]!)
-        );
-    }
-
     public static TokenValidationParameters GetTokenValidationParameters(string? issuer, string secret)
     {
         return new TokenValidationParameters

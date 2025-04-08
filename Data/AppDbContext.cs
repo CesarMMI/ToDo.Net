@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace api.Data;
 
@@ -13,7 +11,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
 public static class AppDbContextExtensions
 {
-    public static IServiceCollection UseSqlServer(this WebApplicationBuilder builder)
+    public static IServiceCollection UseSqlServer(this IHostApplicationBuilder builder)
     {
         return builder.Services.AddDbContext<AppDbContext>(options =>
         {

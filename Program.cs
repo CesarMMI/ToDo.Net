@@ -1,9 +1,10 @@
 using api.Data;
 using api.ErrorHandler.Middlewares;
+using api.Filters;
 using api.Interfaces;
+using api.Middlewares;
 using api.Repositories;
 using api.Services;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
@@ -13,7 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-builder.Services.AddControllers();
+builder.AddControllersWithDataValidation();
 
 builder.UseSqlServer();
 
