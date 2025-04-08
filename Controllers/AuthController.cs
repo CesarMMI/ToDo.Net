@@ -11,19 +11,19 @@ namespace api.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterRequest request)
         {
-            return Ok(await authService.Register(request));
+            return Ok(new AuthResponse { Data = await authService.Register(request) });
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginRequest request)
         {
-            return Ok(await authService.Login(request));
+            return Ok(new AuthResponse { Data = await authService.Login(request) });
         }
 
         [HttpPost("refresh")]
         public async Task<IActionResult> Refresh(RefreshRequest request)
         {
-            return Ok(await authService.Refresh(request));
+            return Ok(new AuthResponse { Data = await authService.Refresh(request) });
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using api.Services;
+﻿using api.Dtos;
+using api.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -23,22 +24,22 @@ public static class TokenMiddleware
                 {
                     if (context.Exception is SecurityTokenExpiredException)
                     {
-                        return context.WriteAuthenticationFailedResponse("Expired Token");
+                        return context.Response.WriteResponse("Token expired");
                     }
 
                     if (context.Exception is SecurityTokenInvalidSignatureException)
                     {
-                        return context.WriteAuthenticationFailedResponse("Invalid Token");
+                        return context.Response.WriteResponse("Invalid token");
                     }
 
-                    return context.WriteAuthenticationFailedResponse("Token Authentication Failed");
+                    return context.Response.WriteResponse("Token authentication failed");
                 },
 
                 OnChallenge = context =>
                 {
                     if (!context.Response.HasStarted)
                     {
-                        return context.WriteChallengeResponse("Invalid Token");
+                        return context.Response.WriteResponse("Invalid token");
                     }
                     return Task.CompletedTask;
                 }
@@ -47,23 +48,13 @@ public static class TokenMiddleware
         );
     }
 
-    private static Task WriteAuthenticationFailedResponse(this ResultContext<JwtBearerOptions> context, string message)
+    private static Task WriteResponse(this HttpResponse response, string message)
     {
-        context.Response.StatusCode = 401;
-        context.Response.ContentType = "application/json";
-        return context.Response.WriteAsync(JsonSerializer.Serialize(new
-        {
-            error = message
-        }));
-    }
-
-    private static Task WriteChallengeResponse(this PropertiesContext<JwtBearerOptions> context, string message)
-    {
-        context.Response.StatusCode = 401;
-        context.Response.ContentType = "application/json";
-        return context.Response.WriteAsync(JsonSerializer.Serialize(new
-        {
-            error = message
-        }));
+        response.StatusCode = 401;
+        response.ContentType = "application/json";
+        return response.WriteAsync(JsonSerializer.Serialize(
+            new BaseResponse { StatusCode = 401, Message = message },
+            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }
+        ));
     }
 }

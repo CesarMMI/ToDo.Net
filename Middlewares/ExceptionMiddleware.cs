@@ -1,4 +1,5 @@
-﻿using api.Exceptions;
+﻿using api.Dtos;
+using api.Exceptions;
 using Microsoft.IdentityModel.Tokens;
 
 namespace api.ErrorHandler.Middlewares;
@@ -19,7 +20,7 @@ public class ExceptionMiddleware(RequestDelegate next)
         }
         catch (SecurityTokenException)
         {
-            await ReturnErrorAsync(context, 401, "Invalid Token");
+            await ReturnErrorAsync(context, 401, "Invalid token");
         }
         catch (UnauthorizedAccessException)
         {
@@ -27,14 +28,14 @@ public class ExceptionMiddleware(RequestDelegate next)
         }
         catch (Exception)
         {
-            await ReturnErrorAsync(context, 500, "Internal Server Error");
+            await ReturnErrorAsync(context, 500, "Internal server error");
         }
     }
 
     private static async Task ReturnErrorAsync(HttpContext context, int statusCode, string message)
     {
         context.Response.StatusCode = statusCode;
-        await context.Response.WriteAsJsonAsync(new { error = message });
+        await context.Response.WriteAsJsonAsync(new BaseResponse { StatusCode = statusCode, Message = message });
     }
 }
 
