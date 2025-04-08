@@ -19,7 +19,7 @@ public class AuthService(ITokenService tokenService, IUserRepository userReposit
             throw new BadRequestException("Email or password is wrong");
         }
 
-        var validPassword = passwordHasher.VerifyHashedPassword(user, user.PasswordHashed, request.Password) == PasswordVerificationResult.Success;
+        var validPassword = passwordHasher.VerifyHashedPassword(user, user.Password, request.Password) == PasswordVerificationResult.Success;
 
         if (!validPassword)
         {
@@ -61,7 +61,7 @@ public class AuthService(ITokenService tokenService, IUserRepository userReposit
             Username = request.Username,
             Email = request.Email
         };
-        user.PasswordHashed = passwordHasher.HashPassword(user, request.Password);
+        user.Password = passwordHasher.HashPassword(user, request.Password);
 
         user = await userRepository.CreateAsync(user);
 
