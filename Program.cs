@@ -1,6 +1,4 @@
 using api.Data;
-using api.ErrorHandler.Middlewares;
-using api.Filters;
 using api.Interfaces;
 using api.Middlewares;
 using api.Repositories;

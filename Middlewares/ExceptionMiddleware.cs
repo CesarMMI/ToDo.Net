@@ -1,8 +1,7 @@
 ﻿using api.Dtos;
 using api.Exceptions;
-using Microsoft.IdentityModel.Tokens;
 
-namespace api.ErrorHandler.Middlewares;
+namespace api.Middlewares;
 
 public class ExceptionMiddleware(RequestDelegate next)
 {
@@ -17,14 +16,6 @@ public class ExceptionMiddleware(RequestDelegate next)
         catch (AppException e)
         {
             await ReturnErrorAsync(context, e.StatusCode, e.Message);
-        }
-        catch (SecurityTokenException)
-        {
-            await ReturnErrorAsync(context, 401, "Invalid token");
-        }
-        catch (UnauthorizedAccessException)
-        {
-            await ReturnErrorAsync(context, 401, "Unauthorized");
         }
         catch (Exception)
         {
